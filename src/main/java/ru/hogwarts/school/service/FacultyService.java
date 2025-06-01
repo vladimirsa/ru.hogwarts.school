@@ -24,6 +24,10 @@ public class FacultyService {
         return facultyRepository.findById(id);
     }
 
+    public List<Faculty> getFacultiesByNameOrColor(String filter) {
+        return facultyRepository.findByNameIgnoreCaseOrColorIgnoreCase(filter, filter);
+    }
+
     public Faculty addFaculty(Faculty faculty) {
         return facultyRepository.save(faculty);
     }
