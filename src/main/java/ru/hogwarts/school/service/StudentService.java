@@ -28,6 +28,10 @@ public class StudentService {
         return studentRepository.findByAge(age);
     }
 
+    public List<Student> getStudentsByAgeRange(int min, int max) {
+        return studentRepository.findByAgeBetween(min, max);
+    }
+
     public Student addStudent(Student student) {
         return studentRepository.save(student);
     }
