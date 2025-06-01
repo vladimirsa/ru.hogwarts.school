@@ -1,52 +1,50 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.StudentRepository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class StudentService {
-    private final Map<Long, Student> students = new HashMap<>();
-    private long idCounter = 1;
+    private final StudentRepository studentRepository;
 
-    public Student addStudent(Student student) {
-        student.setId(idCounter++);
-        students.put(student.getId(), student);
-        return student;
-    }
-
-    public Student getStudent(Long id) {
-        return students.get(id);
+    @Autowired
+    public StudentService(StudentRepository studentRepository) {
+        this.studentRepository = studentRepository;
     }
 
     public List<Student> getAllStudents() {
-        return new ArrayList<>(students.values());
+        return studentRepository.findAll();
     }
 
-    public Student updateStudent(Long id, Student updatedStudent) {
-        if (students.containsKey(id)) {
-            updatedStudent.setId(id);
-            students.put(id, updatedStudent);
-            return updatedStudent;
+    public Optional<Student> getStudent(Long id) {
+        return studentRepository.findById(id);
+    }
+
+    public List<Student> getStudentsByAge(int age) {
+        return studentRepository.findByAge(age);
+    }
+
+    public Student addStudent(Student student) {
+        return studentRepository.save(student);
+    }
+
+    public Student updateStudent(Long id, Student student) {
+        if (studentRepository.existsById(id)) {
+            student.setId(id);
+            return studentRepository.save(student);
         }
         return null;
     }
 
-    public List<Student> getStudentsByAge(int age) {
-        List<Student> result = new ArrayList<>();
-        for (Student student : students.values()) {
-            if (student.getAge() == age) {
-                result.add(student);
-            }
-        }
-        return result;
-    }
-
     public boolean deleteStudent(Long id) {
-        return students.remove(id) != null;
+        if (studentRepository.existsById(id)) {
+            studentRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
