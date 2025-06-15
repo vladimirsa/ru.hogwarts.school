@@ -4,8 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
+import ru.hogwarts.school.model.Faculty;
+import org.springframework.transaction.annotation.Transactional;
+import org.hibernate.Hibernate;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -28,6 +32,10 @@ public class StudentService {
         return studentRepository.findByAge(age);
     }
 
+    public List<Student> getStudentsByAgeRange(int min, int max) {
+        return studentRepository.findByAgeBetween(min, max);
+    }
+
     public Student addStudent(Student student) {
         return studentRepository.save(student);
     }
@@ -47,4 +55,23 @@ public class StudentService {
         }
         return false;
     }
+
+    @Transactional
+    public Optional<Faculty> getFacultyByStudentId(Long studentId) {
+        return getStudent(studentId)
+                .map(student -> {
+                    Faculty faculty = student.getFaculty();
+                    if (faculty != null) {
+                        Hibernate.initialize(faculty);
+                    }
+                    return faculty;
+                });
+    }
+
+    public List<Student> getStudentsByFacultyId(Long facultyId) {
+        return studentRepository.findAll().stream()
+                .filter(student -> student.getFaculty() != null && facultyId.equals(student.getFaculty().getId()))
+                .collect(Collectors.toList());
+    }
+
 }
