@@ -1,61 +1,54 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.web.bind.annotation.*;
-import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.dto.FacultyDTO;
+import ru.hogwarts.school.dto.StudentShortDTO;
 import ru.hogwarts.school.service.FacultyService;
-import ru.hogwarts.school.service.StudentService;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("faculty")
+@RequestMapping("/faculty")
 public class FacultyController {
     private final FacultyService facultyService;
-    private final StudentService studentService;
 
-    public FacultyController(FacultyService facultyService, StudentService studentService) {
+    public FacultyController(FacultyService facultyService) {
         this.facultyService = facultyService;
-        this.studentService = studentService;
     }
 
-    @GetMapping
-    public List<Faculty> getAllFaculties() {
-        return facultyService.getAllFaculties();
+    @GetMapping("/all")
+    public List<FacultyDTO> getAllFaculties() {
+        return facultyService.getAllFacultyDTOs();
     }
 
-    @GetMapping("{id}")
-    public Faculty getFaculty(@PathVariable Long id) {
-        return facultyService.getFaculty(id).orElse(null);
-    }
-
-    @GetMapping("/filter-by-color")
-    public List<Faculty> getFacultiesByColor(@RequestParam String color) {
-        return facultyService.getFacultiesByColor(color);
-    }
-
-    @GetMapping("/filter-by-name-or-color")
-    public List<Faculty> getFacultiesByNameOrColor(@RequestParam String filter) {
-        return facultyService.getFacultiesByNameOrColor(filter);
-    }
-
-    @GetMapping("/faculties/{id}/students")
-    public List<Student> getStudentsByFaculty(@PathVariable Long id) {
-        return studentService.getStudentsByFacultyId(id);
+    @GetMapping("/{id}")
+    public FacultyDTO getFacultyById(@PathVariable Long id) {
+        return facultyService.getFacultyById(id);
     }
 
     @PostMapping
-    public Faculty addFaculty(@RequestBody Faculty faculty) {
-        return facultyService.addFaculty(faculty);
+    public FacultyDTO addFaculty(@RequestBody FacultyDTO facultyDTO) {
+        return facultyService.addFacultyDTO(facultyDTO);
     }
 
-    @PutMapping("{id}")
-    public Faculty updateFaculty(@PathVariable Long id, @RequestBody Faculty faculty) {
-        return facultyService.updateFaculty(id, faculty);
+    @PutMapping("/{id}")
+    public FacultyDTO updateFaculty(@PathVariable Long id, @RequestBody FacultyDTO facultyDTO) {
+        return facultyService.updateFacultyDTO(id, facultyDTO);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public void deleteFaculty(@PathVariable Long id) {
         facultyService.deleteFaculty(id);
+    }
+
+    @GetMapping("/filter-by-name-or-color")
+    public List<FacultyDTO> filterByNameOrColor(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String color) {
+        return facultyService.filterByNameOrColor(name, color);
+    }
+
+    @GetMapping("/{id}/students")
+    public List<StudentShortDTO> getStudentsByFaculty(@PathVariable Long id) {
+        return facultyService.getStudentsByFacultyId(id);
     }
 }

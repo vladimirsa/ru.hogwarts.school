@@ -1,13 +1,11 @@
 package ru.hogwarts.school.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "students"})
 public class Faculty {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -50,7 +48,6 @@ public class Faculty {
                 ", color='" + color + '\'' +
                 '}';
     }
-
 
     public Long getId() {
         return id;
