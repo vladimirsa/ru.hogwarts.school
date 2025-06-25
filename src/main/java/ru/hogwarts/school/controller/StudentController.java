@@ -1,10 +1,9 @@
 package ru.hogwarts.school.controller;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.dto.StudentDTO;
+import ru.hogwarts.school.dto.FacultyDTO;
 import ru.hogwarts.school.service.StudentService;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -16,38 +15,43 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Student>> getAllStudents() {
-        return ResponseEntity.ok(studentService.getAllStudents());
+    @GetMapping("/all")
+    public List<StudentDTO> getAllStudents() {
+        return studentService.getAllStudentDTOs();
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<Student> getStudent(@PathVariable Long id) {
-        Student student = studentService.getStudent(id).orElse(null);
-        return student != null ? ResponseEntity.ok(student) : ResponseEntity.notFound().build();
-    }
-
-    @GetMapping("/filter-by-age")
-    public ResponseEntity<List<Student>> getStudentsByAge(@RequestParam int age) {
-        List<Student> filteredStudents = studentService.getStudentsByAge(age);
-        return ResponseEntity.ok(filteredStudents);
+    @GetMapping("/{id}")
+    public StudentDTO getStudentById(@PathVariable Long id) {
+        return studentService.getStudentById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Student> addStudent(@RequestBody Student student) {
-        return ResponseEntity.ok(studentService.addStudent(student));
+    public StudentDTO addStudent(@RequestBody StudentDTO studentDTO) {
+        return studentService.addStudentDTO(studentDTO);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student student) {
-        Student updatedStudent = studentService.updateStudent(id, student);
-        return updatedStudent != null ? ResponseEntity.ok(updatedStudent) : ResponseEntity.notFound().build();
+    @PutMapping("/{id}")
+    public StudentDTO updateStudent(@PathVariable Long id, @RequestBody StudentDTO studentDTO) {
+        return studentService.updateStudentDTO(id, studentDTO);
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
-        return studentService.deleteStudent(id) ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    @DeleteMapping("/{id}")
+    public void deleteStudent(@PathVariable Long id) {
+        studentService.deleteStudent(id);
     }
 
+    @GetMapping("/filter-by-age")
+    public List<StudentDTO> filterByAge(@RequestParam Integer age) {
+        return studentService.filterByAge(age);
+    }
 
+    @GetMapping("/filter-by-age-range")
+    public List<StudentDTO> filterByAgeRange(@RequestParam Integer min, @RequestParam Integer max) {
+        return studentService.filterByAgeRange(min, max);
+    }
+
+    @GetMapping("/{id}/faculty")
+    public FacultyDTO getFacultyByStudent(@PathVariable Long id) {
+        return studentService.getFacultyByStudentId(id);
+    }
 }
