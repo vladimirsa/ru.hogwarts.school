@@ -1,9 +1,9 @@
 package ru.hogwarts.school.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class StudentDTO {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     private String name;
     private Integer age;
@@ -69,5 +69,17 @@ public class StudentDTO {
 
     public void setFacultyColor(String facultyColor) {
         this.facultyColor = facultyColor;
+    }
+
+    @Override
+    public String toString() {
+        return "StudentDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", facultyId=" + facultyId +
+                ", facultyName='" + facultyName + '\'' +
+                ", facultyColor='" + facultyColor + '\'' +
+                '}';
     }
 }
