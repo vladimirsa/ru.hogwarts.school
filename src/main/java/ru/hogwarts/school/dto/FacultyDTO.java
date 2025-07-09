@@ -7,7 +7,6 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacultyDTO {
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
     private String name;
     private String color;
