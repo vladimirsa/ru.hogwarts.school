@@ -1,9 +1,14 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ru.hogwarts.school.dto.AvatarPreviewPageableDTO;
+import ru.hogwarts.school.dto.StudentShortDTO;
 import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
@@ -11,11 +16,15 @@ import ru.hogwarts.school.repository.StudentRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.util.List;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.stream.Collectors;
+
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Transactional
@@ -96,4 +105,22 @@ public class AvatarService {
                 .map(Avatar::getMediaType)
                 .orElse("application/octet-stream");
     }
+
+    public Page<AvatarPreviewPageableDTO> getAvatarPreviews(int page, int size) {
+        Page<Avatar> avatars = avatarRepository.findAll(PageRequest.of(page, size));
+        List<AvatarPreviewPageableDTO> dtos = avatars.getContent().stream()
+                .map(avatar -> new AvatarPreviewPageableDTO(
+                        avatar.getId(),
+                        Base64.getEncoder().encodeToString(avatar.getData()),
+                        new StudentShortDTO(
+                                avatar.getStudent().getId(),
+                                avatar.getStudent().getName(),
+                                avatar.getStudent().getAge()
+                        )
+                ))
+                .collect(Collectors.toList());
+        return new PageImpl<>(dtos, avatars.getPageable(), avatars.getTotalElements());
+    }
+
+
 }
