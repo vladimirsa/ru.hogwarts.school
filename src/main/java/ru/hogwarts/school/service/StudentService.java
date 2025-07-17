@@ -108,4 +108,18 @@ public class StudentService {
                 })
                 .orElse(null);
     }
+
+    public long getStudentsCount() {
+        return studentRepository.countAllStudents();
+    }
+
+    public Double getAverageStudentAge() {
+        return studentRepository.getAverageAge();
+    }
+
+    public List<StudentDTO> getLastFiveStudents() {
+        return studentRepository.findLastFiveStudents().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
 }
