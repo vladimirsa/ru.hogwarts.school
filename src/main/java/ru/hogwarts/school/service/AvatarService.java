@@ -13,6 +13,8 @@ import ru.hogwarts.school.model.Avatar;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.AvatarRepository;
 import ru.hogwarts.school.repository.StudentRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -30,6 +32,9 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Transactional
 @Service
 public class AvatarService {
+
+    private final Logger logger = LoggerFactory.getLogger(AvatarService.class);
+
     private final AvatarRepository avatarRepository;
     private final StudentRepository studentRepository;
 
@@ -42,11 +47,14 @@ public class AvatarService {
     }
 
     public void uploadAvatar(Long studentId, MultipartFile file) throws IOException {
+        logger.info("Was invoked method for uploadAvatar");
         Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-
+                .orElseThrow(() -> {
+                    logger.error("Student not found with id = " + studentId);
+                    return new IllegalArgumentException("Student not found");
+                });
         Path filePath = Path.of(avatarsDir, student + "." + getExtensions(file.getOriginalFilename()));
-
+        logger.debug("Uploading avatar for studentId = {} to path {}", studentId, filePath);
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (
@@ -64,15 +72,19 @@ public class AvatarService {
         avatar.setMediaType(file.getContentType());
         avatar.setData(generateDataForDB(filePath));
         avatarRepository.save(avatar);
+        logger.info("Avatar uploaded and saved for studentId = {}", studentId);
     }
 
     private byte[] generateDataForDB(Path filePath) throws IOException {
+        logger.debug("Was invoked method for generateDataForDB");
         try (
             InputStream is = Files.newInputStream(filePath);
             BufferedInputStream bis = new BufferedInputStream(is, 1024);
             ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 BufferedImage image = ImageIO.read(bis);
-
+                if (image == null) {
+                    logger.warn("ImageIO.read returned null for filePath: {}", filePath);
+                }
                 int height = image.getHeight() / (image.getWidth() / 100);
                 BufferedImage preview = new BufferedImage(100, height, image.getType());
                 Graphics2D graphics2D = preview.createGraphics();
@@ -85,28 +97,40 @@ public class AvatarService {
     }
 
     private String getExtensions(String fileName) {
+        logger.debug("Was invoked method for getExtensions");
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
     public Avatar getAvatarFromDb(Long studentId) {
+        logger.info("Was invoked method for getAvatarFromDb");
         return avatarRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Аватар не найден"));
+                .orElseThrow(() -> {
+                    logger.error("Avatar not found for studentId = " + studentId);
+                    return new IllegalArgumentException("Аватар не найден");
+                });
     }
 
     public byte[] getAvatarFromFile(Long studentId) throws IOException {
+        logger.info("Was invoked method for getAvatarFromFile");
         Avatar avatar = avatarRepository.findByStudentId(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Аватар не найден"));
+                .orElseThrow(() -> {
+                    logger.error("Avatar not found for studentId = " + studentId);
+                    return new IllegalArgumentException("Аватар не найден");
+                });
         Path path = Paths.get(avatar.getFilePath());
+        logger.debug("Reading avatar file from path: {}", path);
         return Files.readAllBytes(path);
     }
 
     public String getAvatarMediaType(Long studentId) {
+        logger.info("Was invoked method for getAvatarMediaType");
         return avatarRepository.findByStudentId(studentId)
                 .map(Avatar::getMediaType)
                 .orElse("application/octet-stream");
     }
 
     public Page<AvatarPreviewPageableDTO> getAvatarPreviews(int page, int size) {
+        logger.info("Was invoked method for getAvatarPreviews");
         Page<Avatar> avatars = avatarRepository.findAll(PageRequest.of(page, size));
         List<AvatarPreviewPageableDTO> dtos = avatars.getContent().stream()
                 .map(avatar -> new AvatarPreviewPageableDTO(
@@ -119,6 +143,7 @@ public class AvatarService {
                         )
                 ))
                 .collect(Collectors.toList());
+        logger.debug("Returning {} avatar previews", dtos.size());
         return new PageImpl<>(dtos, avatars.getPageable(), avatars.getTotalElements());
     }
 
