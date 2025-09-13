@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Locale;
+import java.util.Objects;
 
 @Service
 public class StudentService {
@@ -159,6 +161,21 @@ public class StudentService {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
         logger.debug("Last five students count: {}", result.size());
+        return result;
+    }
+
+    public List<String> getNamesStartsWithA() {
+        logger.info("Was invoked method for getNamesStartsWithA");
+        List<String> result = studentRepository.findAll().stream()
+                .map(Student::getName)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(s -> s.toUpperCase(Locale.ROOT))
+                .filter(s -> s.startsWith("A") || s.startsWith("А"))
+                .sorted()
+                .collect(Collectors.toList());
+        logger.debug("Names starting with A count: {}", result.size());
         return result;
     }
 }
