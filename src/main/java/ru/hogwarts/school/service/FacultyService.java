@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Comparator;
 
 @Service
 public class FacultyService {
@@ -108,5 +109,16 @@ public class FacultyService {
                 .collect(Collectors.toList());
         logger.debug("Found {} students for facultyId = {}", students.size(), facultyId);
         return students;
+    }
+
+    public String getLongestFacultyName() {
+        logger.info("Was invoked method for getLongestFacultyName");
+        String longest = facultyRepository.findAll().stream()
+                .map(Faculty::getName)
+                .filter(n -> n != null && !n.trim().isEmpty())
+                .max(Comparator.comparingInt(String::length))
+                .orElse("");
+        logger.debug("Longest faculty name length: {}", longest.length());
+        return longest;
     }
 }
