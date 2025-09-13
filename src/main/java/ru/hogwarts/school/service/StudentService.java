@@ -178,4 +178,14 @@ public class StudentService {
         logger.debug("Names starting with A count: {}", result.size());
         return result;
     }
+
+    public Double getAverageStudentAgeByFindAll() {
+        logger.info("Was invoked method for getAverageStudentAgeByFindAll");
+        return studentRepository.findAll().parallelStream()
+                .map(Student::getAge)
+                .filter(Objects::nonNull)
+                .mapToInt(Integer::intValue)
+                .average()
+                .orElse(0.0);
+    }
 }
