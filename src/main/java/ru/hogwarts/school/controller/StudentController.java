@@ -79,4 +79,14 @@ public class StudentController {
     public List<String> getNamesStartsWithA() {
         return studentService.getNamesStartsWithA();
     }
+
+    @GetMapping("/print-parallel")
+    public void printStudentsParallel() {
+        studentService.printStudentsParallel();
+    }
+
+    @GetMapping("/print-synchronized")
+    public void printStudentsSynchronized() {
+        studentService.printStudentsSynchronized();
+    }
 }
