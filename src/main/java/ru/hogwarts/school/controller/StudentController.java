@@ -65,9 +65,18 @@ public class StudentController {
         return studentService.getAverageStudentAge();
     }
 
+    @GetMapping("/average-age-by-all-students")
+    public Double getAverageStudentAgeByFindAll() {
+        return studentService.getAverageStudentAgeByFindAll();
+    }
+
     @GetMapping("/last-five")
     public List<StudentDTO> getLastFiveStudents() {
         return studentService.getLastFiveStudents();
     }
 
+    @GetMapping("/names/starts-with-a")
+    public List<String> getNamesStartsWithA() {
+        return studentService.getNamesStartsWithA();
+    }
 }

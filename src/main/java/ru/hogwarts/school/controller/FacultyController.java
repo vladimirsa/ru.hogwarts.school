@@ -51,4 +51,9 @@ public class FacultyController {
     public List<StudentShortDTO> getStudentsByFaculty(@PathVariable Long id) {
         return facultyService.getStudentsByFacultyId(id);
     }
+
+    @GetMapping("/longest-name")
+    public String getLongestFacultyName() {
+        return facultyService.getLongestFacultyName();
+    }
 }
