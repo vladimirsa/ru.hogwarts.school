@@ -188,4 +188,54 @@ public class StudentService {
                 .average()
                 .orElse(0.0);
     }
+
+    public void printStudentsParallel() {
+        List<StudentDTO> students = getAllStudentDTOs();
+
+        if (students.size() > 0)
+            System.out.println(students.get(0).getName());
+        if (students.size() > 1)
+            System.out.println(students.get(1).getName());
+
+        Thread t1 = new Thread(() -> {
+            if (students.size() > 2)
+                System.out.println(students.get(2).getName());
+            if (students.size() > 3)
+                System.out.println(students.get(3).getName());
+        });
+
+        Thread t2 = new Thread(() -> {
+            if (students.size() > 4)
+                System.out.println(students.get(4).getName());
+            if (students.size() > 5)
+                System.out.println(students.get(5).getName());
+        });
+
+        t1.start();
+        t2.start();
+    }
+
+    private synchronized void printName(String name) {
+        System.out.println(name);
+    }
+
+    public void printStudentsSynchronized() {
+        List<StudentDTO> students = getAllStudentDTOs();
+
+        if (students.size() > 0) printName(students.get(0).getName());
+        if (students.size() > 1) printName(students.get(1).getName());
+
+        Thread t1 = new Thread(() -> {
+            if (students.size() > 2) printName(students.get(2).getName());
+            if (students.size() > 3) printName(students.get(3).getName());
+        });
+
+        Thread t2 = new Thread(() -> {
+            if (students.size() > 4) printName(students.get(4).getName());
+            if (students.size() > 5) printName(students.get(5).getName());
+        });
+
+        t1.start();
+        t2.start();
+    }
 }
